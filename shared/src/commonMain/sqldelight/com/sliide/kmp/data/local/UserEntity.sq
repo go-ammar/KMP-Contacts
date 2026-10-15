@@ -1,0 +1,54 @@
+CREATE TABLE userEntity (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    gender TEXT NOT NULL,
+    status TEXT NOT NULL,
+    firstSeenAtEpochMillis INTEGER NOT NULL,
+    isPendingDelete INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX userEntity_ordering ON userEntity(firstSeenAtEpochMillis DESC, id DESC);
+
+selectVisible:
+SELECT *
+FROM userEntity
+WHERE isPendingDelete = 0
+ORDER BY firstSeenAtEpochMillis DESC, id DESC;
+
+
+countAll:
+SELECT COUNT(*)
+FROM userEntity;
+
+-- SQLite's UPSERT needs 3.24+, but Android API 26 ships 3.18, so the merge is expressed as
+-- an insert-if-absent followed by a field update. Run inside one transaction, the pair
+-- preserves firstSeenAtEpochMillis and isPendingDelete for rows that already exist - a
+-- refresh must never reset a user's age or resurrect one inside its undo window.
+insertIfAbsent:
+INSERT OR IGNORE INTO userEntity(id, name, email, gender, status, firstSeenAtEpochMillis, isPendingDelete)
+VALUES (:id, :name, :email, :gender, :status, :firstSeenAtEpochMillis, 0);
+
+updateMutableFields:
+UPDATE userEntity
+SET name = :name,
+    email = :email,
+    gender = :gender,
+    status = :status
+WHERE id = :id;
+
+setPendingDelete:
+UPDATE userEntity
+SET isPendingDelete = :isPendingDelete
+WHERE id = :id;
+
+deleteById:
+DELETE FROM userEntity
+WHERE id = :id;
+
+-- A pending deletion that never reached the server (app killed mid-undo-window) must not
+-- leave the row invisible forever, so every cold start clears the flag.
+clearAllPendingDeletes:
+UPDATE userEntity
+SET isPendingDelete = 0
+WHERE isPendingDelete = 1;
