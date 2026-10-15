@@ -1,0 +1,44 @@
+# XcodeGen spec. The Xcode project is generated rather than committed so the repository does
+# not carry a 900-line .pbxproj that nothing can diff or review.
+#
+#   brew install xcodegen && ./iosApp/generate-project.sh
+name: iosApp
+options:
+  bundleIdPrefix: com.sliide
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    # The Gradle build phase writes the framework into the build directory, which the
+    # script sandbox would otherwise block.
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    SWIFT_VERSION: "5.0"
+
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: iosApp
+    info:
+      path: iosApp/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sliide.kmp
+        PRODUCT_NAME: Sliide Users
+        TARGETED_DEVICE_FAMILY: "1,2"
+        FRAMEWORK_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/../composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS:
+          - $(inherited)
+          - -framework
+          - ComposeApp
+    preBuildScripts:
+      - name: Build Kotlin framework
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode

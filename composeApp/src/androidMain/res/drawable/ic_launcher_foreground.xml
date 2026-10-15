@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A directory mark: one prominent figure with a second behind it. Drawn inside the 72dp
+  adaptive-icon safe zone (centred in the 108dp canvas) so no part is clipped by any mask.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Trailing figure, held back in opacity so it reads as depth, not clutter. -->
+    <group android:translateX="12" android:translateY="2">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillAlpha="0.45"
+            android:pathData="M54,40m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillAlpha="0.45"
+            android:pathData="M54,55c-11.6,0 -21,6.6 -21,14.8L33,74h42v-4.2C75,61.6 65.6,55 54,55z" />
+    </group>
+
+    <!-- Lead figure. -->
+    <group android:translateX="-6" android:translateY="2">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M54,40m-13,0a13,13 0,1 1,26 0a13,13 0,1 1,-26 0" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M54,57c-13.3,0 -24,7.6 -24,17l0,4h48l0,-4c0,-9.4 -10.7,-17 -24,-17z" />
+    </group>
+</vector>
