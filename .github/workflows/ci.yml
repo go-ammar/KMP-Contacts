@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Lint
+        run: ./gradlew ktlintCheck
+
+      - name: Unit tests
+        run: ./gradlew :shared:testDebugUnitTest
+
+      - name: Assemble Android
+        run: ./gradlew :composeApp:assembleDebug
+
+      # Compiles the Apple targets. Linking the framework needs a full Xcode, so the
+      # klib compile is the honest limit of what CI verifies for iOS here.
+      - name: Compile iOS targets
+        run: ./gradlew :composeApp:compileKotlinIosSimulatorArm64
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: shared/build/reports/tests/
