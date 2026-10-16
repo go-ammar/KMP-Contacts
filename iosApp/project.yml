@@ -4,7 +4,7 @@
 #   brew install xcodegen && ./iosApp/generate-project.sh
 name: iosApp
 options:
-  bundleIdPrefix: com.sliide
+  bundleIdPrefix: com.roster
   deploymentTarget:
     iOS: "15.0"
   createIntermediateGroups: true
@@ -26,8 +26,8 @@ targets:
       path: iosApp/Info.plist
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.sliide.kmp
-        PRODUCT_NAME: Sliide Users
+        PRODUCT_BUNDLE_IDENTIFIER: com.roster
+        PRODUCT_NAME: Roster
         TARGETED_DEVICE_FAMILY: "1,2"
         FRAMEWORK_SEARCH_PATHS:
           - $(inherited)

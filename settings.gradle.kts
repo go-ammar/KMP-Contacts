@@ -25,7 +25,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SliideKMP"
+rootProject.name = "Roster"
 
 include(":shared")
 include(":composeApp")

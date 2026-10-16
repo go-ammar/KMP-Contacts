@@ -34,11 +34,11 @@ val generateApiConfig =
         inputs.property("gorestToken", token)
         outputs.dir(outputDir)
         doLast {
-            val pkgDir = outputDir.get().asFile.resolve("com/sliide/kmp/data/remote")
+            val pkgDir = outputDir.get().asFile.resolve("com/roster/data/remote")
             pkgDir.mkdirs()
             pkgDir.resolve("ApiConfig.kt").writeText(
                 """
-                package com.sliide.kmp.data.remote
+                package com.roster.data.remote
 
                 /** Generated at build time - see shared/build.gradle.kts. */
                 object ApiConfig {
@@ -124,7 +124,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.sliide.kmp.shared"
+    namespace = "com.roster.shared"
     compileSdk =
         libs.versions.androidCompileSdk
             .get()
@@ -153,8 +153,8 @@ android {
 
 sqldelight {
     databases {
-        create("SliideDatabase") {
-            packageName.set("com.sliide.kmp.data.local")
+        create("RosterDatabase") {
+            packageName.set("com.roster.data.local")
         }
     }
 }

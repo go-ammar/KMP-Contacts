@@ -1,4 +1,4 @@
-# Sliide Users — Kotlin Multiplatform
+# Roster — Kotlin Multiplatform
 
 A cross-platform user directory on top of the [GoRest](https://gorest.co.in) API. One Compose
 Multiplatform UI, one set of ViewModels, one set of tests, running on Android and iOS.
@@ -53,7 +53,7 @@ Requests are logged through an `expect`/`actual` logger - `android.util.Log` on 
 plugin would otherwise be installed and silent.
 
 ```bash
-adb logcat -s SliideHttp
+adb logcat -s RosterHttp
 ```
 
 The `Authorization` header is redacted to `***` via `sanitizeHeader`, so the token never
@@ -193,6 +193,15 @@ state, not an error.
 preserves `firstSeenAtEpochMillis` and the pending-delete flag on rows that already exist — a
 refresh must never reset a user's age or resurrect one mid-undo. Both properties are covered by
 tests against a real in-memory database.
+
+**A created user never comes back from the server, and that is load-bearing.**
+GoRest orders newest-first, so a `POST` lands on page *1* while the app reads the *last* page -
+verified: a user created via the API appears at position 1 of page 1 and is absent from page
+143. The two requirements pull in opposite directions. It works because `refresh()` only ever
+upserts and never clears the table, so the locally inserted user survives every subsequent
+sync. The naive implementation - wipe the table, insert the page - would make every user you
+created vanish on the next pull-to-refresh. The trade-off is that such a user is never
+reconciled with the server again.
 
 **"Last page" comes from the pagination header.**
 `GET /users?page=1` reports the page count in `x-pagination-pages`; the last page is then

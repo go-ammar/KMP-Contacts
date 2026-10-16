@@ -67,14 +67,14 @@ kotlin {
 }
 
 android {
-    namespace = "com.sliide.kmp"
+    namespace = "com.roster"
     compileSdk =
         libs.versions.androidCompileSdk
             .get()
             .toInt()
 
     defaultConfig {
-        applicationId = "com.sliide.kmp"
+        applicationId = "com.roster"
         minSdk =
             libs.versions.androidMinSdk
                 .get()
