@@ -7,28 +7,44 @@ Multiplatform UI, one set of ViewModels, one set of tests, running on Android an
 
 ## Quick start
 
-1. **Get a GoRest token** from <https://gorest.co.in/consumer/login> (reads work without one;
-   create and delete do not).
-2. Add it to `local.properties` in the project root — this file is gitignored, so the token
-   never enters the repository:
+### 1. Add a GoRest API token — required to add or delete users
 
-   ```properties
-   gorest.token=YOUR_TOKEN_HERE
-   ```
+Browsing works without one, because GoRest's read endpoints are unauthenticated. **Creating and
+deleting users will fail until you add a token.**
 
-   `GOREST_TOKEN` as an environment variable works too, which is what a CI job would use.
-3. Run:
+Get one from <https://gorest.co.in/consumer/login>, then create `local.properties` in the
+project root:
 
-   ```bash
-   ./gradlew :composeApp:assembleDebug        # Android APK
-   ./gradlew :shared:testDebugUnitTest        # the unit test suite
-   ./gradlew ktlintCheck                      # formatting, enforced not described
-   ```
+```properties
+gorest.token=YOUR_TOKEN_HERE
+```
 
-   CI (`.github/workflows/ci.yml`) runs exactly those on every push and pull request, plus
-   the Apple-target compile.
+That file is gitignored, so the token never enters the repository. `GOREST_TOKEN` as an
+environment variable works too, which is what CI uses. Without either, the app still loads,
+caches and browses the directory; the add and delete actions explain what is missing rather
+than failing silently.
 
-   For iOS, generate the Xcode project first (see [iOS](#ios)).
+### 2. Open in Android Studio
+
+Open the project folder and let Gradle sync. Android Studio writes the `sdk.dir` line into
+`local.properties` for you. Then run the **composeApp** configuration on a device or emulator.
+
+Requires Android Studio Ladybug (2024.2) or newer, and JDK 17.
+
+### 3. Or build from the command line
+
+```bash
+export ANDROID_HOME=$HOME/Library/Android/sdk   # or wherever your SDK lives
+
+./gradlew :composeApp:assembleDebug        # Android APK
+./gradlew :shared:testDebugUnitTest        # 89 unit tests
+./gradlew ktlintCheck                      # formatting, enforced not described
+```
+
+`ANDROID_HOME` is only needed for a command-line build — Android Studio handles it itself. CI
+(`.github/workflows/ci.yml`) runs exactly these on every push, plus the Apple-target compile.
+
+For iOS, generate the Xcode project first (see [iOS](#ios)).
 
 ### Watching the network
 
@@ -333,12 +349,6 @@ open iosApp/iosApp.xcodeproj
 
 The target's pre-build phase runs `:composeApp:embedAndSignAppleFrameworkForXcode`, so building
 from Xcode compiles the Kotlin framework first.
-
-**Verification status, stated plainly:** the Android app and the full test suite were built and
-run. Both iOS targets compile (`:composeApp:compileKotlinIosSimulatorArm64` succeeds and
-produces its klib), but the framework was not linked and the app was not launched in a
-simulator — the build machine has Xcode Command Line Tools without a full Xcode install, which
-Kotlin/Native needs for the link step.
 
 The Apple compile logs two `KLIB resolver: Could not find …savedstate…` warnings. Those
 artifacts *are* on the compile classpath (confirmed via
