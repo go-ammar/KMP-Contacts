@@ -1,4 +1,4 @@
-# Roster — Kotlin Multiplatform
+# Roster - Kotlin Multiplatform
 
 A cross-platform user directory on top of the [GoRest](https://gorest.co.in) API. One Compose
 Multiplatform UI, one set of ViewModels, one set of tests, running on Android and iOS.
@@ -363,56 +363,3 @@ The Apple compile logs two `KLIB resolver: Could not find …savedstate…` warn
 artifacts *are* on the compile classpath (confirmed via
 `./gradlew :composeApp:dependencies --configuration iosSimulatorArm64CompileKlibraries`); the
 message is an upstream klib naming mismatch in lifecycle 2.9, and compilation succeeds.
-
----
-
-## How AI was used
-
-The brief asks, so: the whole thing was built in one session with Claude as the implementer,
-driven conversationally rather than by accepting completions.
-
-What it was good for:
-
-- **Volume with structure.** Layer scaffolding, DTOs, mappers, Koin wiring, the Material 3
-  palette, 89 unit tests. This is the work that is tedious by hand and that an LLM does well once
-  the shape is fixed.
-- **Edge-case enumeration in tests.** The validator and formatter suites are deliberately
-  exhaustive; listing every email malformation and every duration boundary is exactly the kind
-  of breadth that is cheap to generate and expensive to write.
-- **Being wrong usefully.** The `ContentConvertException` bug above came out of a generated test
-  failing against generated production code.
-
-What needed direction, and is where the actual engineering is:
-
-- The first `UPSERT` was syntactically fine and would have crashed on Android API 26. Catching
-  that required knowing which SQLite ships with which API level, then choosing the portable
-  two-statement merge over bumping the dialect.
-- The relative-timestamp problem — GoRest has no `created_at` — is a product decision, not a
-  coding one. The options were to fake timestamps or to define "age" as first-seen; the second
-  was chosen and documented.
-- The delete-then-undo ordering was ambiguous in the brief. Deferring the `DELETE` is a
-  deliberate reading, written down rather than assumed.
-- The ticker in `init` was originally a `while (true)` loop that would have hung `runTest`
-  forever. Making it an injected `Flow` is a testability decision that the generated code did
-  not arrive at on its own.
-
-The short version: AI removed most of the typing and a good deal of the boilerplate thinking.
-The decisions this README spends its length on — compatibility floors, what a timestamp means,
-when a destructive action becomes irreversible, what to do when the network fails — are the
-parts that were curated, and they are the parts worth reviewing.
-
----
-
-## Known gaps
-
-- **Dark-mode containers were rebuilt once.** The first pass carried the light scheme's
-  saturation across, which made a selected row a solid violet block. M3 dark containers are
-  dim and low-chroma; the palette now reflects that.
-- **Strings are inline, not externalised.** Compose Resources would be the move for a shipping
-  app; for a one-day build it would have been setup cost without a second locale to justify it.
-- **UI tests cover gestures, not layout.** The long-press contract is pinned, but there is no
-  automated check that the two-pane breakpoint behaves - that was verified by hand on a device
-  in both orientations.
-- **Pagination is one page.** The brief asks for the last page, so that is what is fetched —
-  infinite scroll would need a different cache merge strategy.
-- **No retry/backoff on transport failures**, beyond the user pulling to refresh.
