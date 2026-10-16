@@ -1,4 +1,4 @@
-# Sliide Users — Kotlin Multiplatform
+# Roster - Kotlin Multiplatform
 
 A cross-platform user directory on top of the [GoRest](https://gorest.co.in) API. One Compose
 Multiplatform UI, one set of ViewModels, one set of tests, running on Android and iOS.
